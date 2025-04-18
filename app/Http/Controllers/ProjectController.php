@@ -4,11 +4,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
-use Illuminate\Http\Request;
-use App\Events\ProjectUpdated;
+use App\Models\User;
+use App\Http\Requests\ProjectRequest;
+use App\Services\ProjectService;
 
 class ProjectController extends Controller
 {
+    protected $projectService;
+
+    public function __construct(ProjectService $projectService)
+    {
+        $this->projectService = $projectService;
+    }
+
     public function index()
     {
         $projects = Project::with(['members', 'tasks'])
@@ -20,78 +28,51 @@ class ProjectController extends Controller
             })
             ->get();
             
-        return response()->json($projects);
+        return $this->success($projects);
     }
 
-    public function store(Request $request)
+    public function store(ProjectRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'due_date' => 'nullable|date',
-        ]);
+        $project = $this->projectService->create(
+            $request->validated(),
+            auth()->id()
+        );
 
-        $project = new Project($validated);
-        $project->status = 'active';
-        $project->progress = 0;
-        $project->user_id = auth()->id();
-        $project->save();
-
-        $project->members()->attach(auth()->id());
-
-        return response()->json($project, 201);
+        return $this->success($project, 'Project created successfully', 201);
     }
 
     public function show(Project $project)
     {
         $this->authorize('view', $project);
         $project->load(['members', 'tasks']);
-        return response()->json($project);
+        return $this->success($project);
     }
 
-    public function update(Request $request, Project $project)
+    public function update(ProjectRequest $request, Project $project)
     {
         $this->authorize('update', $project);
-
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'status' => 'sometimes|in:active,completed,archived',
-            'progress' => 'sometimes|integer|min:0|max:100',
-            'due_date' => 'nullable|date',
-        ]);
-
-        $project->update($validated);
-
-        event(new ProjectUpdated($project));
-
-        return response()->json($project);
+        $project = $this->projectService->update($project, $request->validated());
+        return $this->success($project, 'Project updated successfully');
     }
 
     public function destroy(Project $project)
     {
         $this->authorize('delete', $project);
         $project->delete();
-        return response()->json(null, 204);
+        return $this->success(null, 'Project deleted successfully', 204);
     }
 
-    public function addMember(Request $request, Project $project)
+    public function addMember(Project $project, User $user)
     {
         $this->authorize('update', $project);
-        
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $project->members()->attach($validated['user_id']);
-
-        return response()->json(['message' => 'Member added successfully']);
+        $this->projectService->addMember($project, $user->id);
+        return $this->success(null, 'Member added successfully');
     }
 
     public function removeMember(Project $project, User $user)
     {
         $this->authorize('update', $project);
-        $project->members()->detach($user->id);
-        return response()->json(['message' => 'Member removed successfully']);
+        $this->projectService->removeMember($project, $user->id);
+        return $this->success(null, 'Member removed successfully');
     }
 }
