@@ -1,18 +1,16 @@
 
 import axios from 'axios';
 
-// This would be the connection to your Laravel API
-// Replace with your actual Laravel backend URL
+// Connect to Laravel API
 const API_URL = 'http://localhost:8000/api';
 
-// Create axios instance with defaults
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true, // This enables sending cookies with requests
+  withCredentials: true,
 });
 
 // Add authentication interceptor
@@ -24,7 +22,7 @@ api.interceptors.request.use(config => {
   return config;
 });
 
-// API Services for Laravel Backend
+// Auth services for Laravel endpoints
 export const authService = {
   login: (email: string, password: string) => 
     api.post('/auth/login', { email, password }),
@@ -37,6 +35,7 @@ export const authService = {
   getUser: () => api.get('/auth/user'),
 };
 
+// Project services
 export const projectService = {
   getAll: () => api.get('/projects'),
   
@@ -57,6 +56,7 @@ export const projectService = {
     api.delete(`/projects/${projectId}/members/${userId}`),
 };
 
+// Task services
 export const taskService = {
   getAll: (filters = {}) => api.get('/tasks', { params: filters }),
   
@@ -84,17 +84,26 @@ export const taskService = {
   delete: (id: number) => api.delete(`/tasks/${id}`),
 };
 
-export const userService = {
-  getAll: () => api.get('/users'),
+// Message services
+export const messageService = {
+  getAll: () => api.get('/messages'),
   
-  getById: (id: number) => api.get(`/users/${id}`),
-  
-  update: (id: number, data: {
-    name?: string;
-    email?: string;
-    role?: string;
-    status?: string;
-  }) => api.put(`/users/${id}`, data),
+  send: (content: string, attachments?: File[]) => {
+    const formData = new FormData();
+    formData.append('content', content);
+    
+    if (attachments) {
+      attachments.forEach(file => {
+        formData.append('attachments[]', file);
+      });
+    }
+    
+    return api.post('/messages', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 export default api;
