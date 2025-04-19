@@ -19,8 +19,8 @@ Route::get('/api/docs', function () {
     return view('api_docs');
 });
 
-// For all other routes, return a message that this is an API server
-Route::get('/', function () {
+// For API routes
+Route::prefix('api')->group(function () {
     return response()->json([
         'message' => 'SyncSaga API Server', 
         'version' => '1.0',
@@ -29,3 +29,9 @@ Route::get('/', function () {
         'frontend_url' => env('FRONTEND_URL', 'http://localhost:8080')
     ]);
 });
+
+// Catch all routes to serve React frontend
+Route::get('/{path?}', function () {
+    return view('app');
+})->where('path', '.*');
+
