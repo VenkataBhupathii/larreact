@@ -19,14 +19,14 @@ Route::get('/api/docs', function () {
     return view('api_docs');
 });
 
-// For API routes
-Route::prefix('api')->group(function () {
+// API info route
+Route::get('/api', function () {
     return response()->json([
-        'message' => 'SyncSaga API Server', 
+        'message' => 'SyncSaga API Server',
         'version' => '1.0',
         'status' => 'active',
         'documentation' => '/api/docs',
-        'frontend_url' => env('FRONTEND_URL', 'http://localhost:8080')
+        'frontend_url' => env('FRONTEND_URL', 'http://localhost:8000')
     ]);
 });
 
@@ -34,4 +34,3 @@ Route::prefix('api')->group(function () {
 Route::get('/{path?}', function () {
     return view('app');
 })->where('path', '.*');
-
