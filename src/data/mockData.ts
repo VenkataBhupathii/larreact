@@ -1,5 +1,5 @@
 
-import { User, Project, Task, Message, Notification } from '@/types';
+import { User, Project, Task, Message, Attachment } from '@/types';
 
 // Mock Users
 export const users: User[] = [
@@ -7,71 +7,83 @@ export const users: User[] = [
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=8B5CF6&color=fff',
-    role: 'admin',
-    status: 'online',
-    lastActive: new Date().toISOString()
+    role: 'Developer',
+    status: 'active',
+    avatar: '/assets/avatars/avatar-1.png',
+    created_at: '2025-01-15T10:00:00Z',
+    updated_at: '2025-04-01T14:30:00Z'
   },
   {
     id: 2,
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    avatar: 'https://ui-avatars.com/api/?name=Jane+Smith&background=8B5CF6&color=fff',
-    role: 'member',
-    status: 'online',
-    lastActive: new Date().toISOString()
+    name: 'Sarah Smith',
+    email: 'sarah@example.com',
+    role: 'Designer',
+    status: 'active',
+    avatar: '/assets/avatars/avatar-2.png',
+    created_at: '2025-01-20T11:00:00Z',
+    updated_at: '2025-04-02T09:15:00Z'
   },
   {
     id: 3,
-    name: 'Mike Johnson',
-    email: 'mike@example.com',
-    avatar: 'https://ui-avatars.com/api/?name=Mike+Johnson&background=8B5CF6&color=fff',
-    role: 'member',
-    status: 'offline',
-    lastActive: new Date(Date.now() - 3600000).toISOString() // 1 hour ago
+    name: 'Michael Johnson',
+    email: 'michael@example.com',
+    role: 'Project Manager',
+    status: 'active',
+    avatar: '/assets/avatars/avatar-3.png',
+    created_at: '2025-01-10T14:00:00Z',
+    updated_at: '2025-04-03T16:45:00Z'
   },
   {
     id: 4,
-    name: 'Sarah Wilson',
-    email: 'sarah@example.com',
-    avatar: 'https://ui-avatars.com/api/?name=Sarah+Wilson&background=8B5CF6&color=fff',
-    role: 'member',
-    status: 'away',
-    lastActive: new Date(Date.now() - 1800000).toISOString() // 30 minutes ago
+    name: 'Emily Davis',
+    email: 'emily@example.com',
+    role: 'Marketing',
+    status: 'active',
+    avatar: '/assets/avatars/avatar-4.png',
+    created_at: '2025-02-05T09:30:00Z',
+    updated_at: '2025-04-04T11:20:00Z'
   }
 ];
+
+export const currentUser = users[0];
 
 // Mock Projects
 export const projects: Project[] = [
   {
     id: 1,
     name: 'Website Redesign',
-    description: 'Redesign company website with modern UI/UX principles',
+    description: 'Complete overhaul of the company website',
     status: 'active',
-    progress: 75,
-    createdAt: new Date(Date.now() - 30 * 24 * 3600000).toISOString(), // 30 days ago
-    dueDate: new Date(Date.now() + 15 * 24 * 3600000).toISOString(), // 15 days from now
-    members: [1, 2, 3]
+    progress: 65,
+    due_date: '2025-05-15',
+    user_id: 1,
+    members: [users[0], users[1], users[2]],
+    created_at: '2025-03-01T10:00:00Z',
+    updated_at: '2025-04-10T14:30:00Z'
   },
   {
     id: 2,
     name: 'Mobile App Development',
-    description: 'Develop native mobile applications for iOS and Android',
+    description: 'Building a cross-platform mobile application',
     status: 'active',
-    progress: 40,
-    createdAt: new Date(Date.now() - 45 * 24 * 3600000).toISOString(), // 45 days ago
-    dueDate: new Date(Date.now() + 60 * 24 * 3600000).toISOString(), // 60 days from now
-    members: [1, 2, 4]
+    progress: 30,
+    due_date: '2025-07-20',
+    user_id: 3,
+    members: [users[2], users[3], users[0]],
+    created_at: '2025-03-15T11:00:00Z',
+    updated_at: '2025-04-12T09:15:00Z'
   },
   {
     id: 3,
-    name: 'Database Migration',
-    description: 'Migrate from SQL to NoSQL database architecture',
+    name: 'Marketing Campaign',
+    description: 'Q2 digital marketing campaign',
     status: 'completed',
     progress: 100,
-    createdAt: new Date(Date.now() - 90 * 24 * 3600000).toISOString(), // 90 days ago
-    dueDate: new Date(Date.now() - 10 * 24 * 3600000).toISOString(), // 10 days ago
-    members: [1, 3]
+    due_date: '2025-04-01',
+    user_id: 4,
+    members: [users[3], users[1]],
+    created_at: '2025-02-10T14:00:00Z',
+    updated_at: '2025-04-01T16:45:00Z'
   }
 ];
 
@@ -79,60 +91,77 @@ export const projects: Project[] = [
 export const tasks: Task[] = [
   {
     id: 1,
-    projectId: 1,
-    title: 'Design Homepage Mockup',
-    description: 'Create wireframes and design mockups for the new homepage',
-    status: 'completed',
-    assigneeId: 2,
+    title: 'Design Homepage',
+    description: 'Create wireframes and mockups for the homepage',
+    status: 'in_progress',
     priority: 'high',
-    dueDate: new Date(Date.now() - 5 * 24 * 3600000).toISOString(), // 5 days ago
-    createdAt: new Date(Date.now() - 25 * 24 * 3600000).toISOString(), // 25 days ago
-    completedAt: new Date(Date.now() - 6 * 24 * 3600000).toISOString() // 6 days ago
+    due_date: '2025-04-25',
+    project_id: 1,
+    assignee_id: 2,
+    created_at: '2025-03-05T10:00:00Z',
+    updated_at: '2025-04-10T14:30:00Z'
   },
   {
     id: 2,
-    projectId: 1,
-    title: 'Implement Frontend Components',
-    description: 'Build reusable React components based on the design system',
-    status: 'in-progress',
-    assigneeId: 1,
+    title: 'Implement Authentication',
+    description: 'Set up user authentication and authorization',
+    status: 'pending',
     priority: 'medium',
-    dueDate: new Date(Date.now() + 5 * 24 * 3600000).toISOString(), // 5 days from now
-    createdAt: new Date(Date.now() - 20 * 24 * 3600000).toISOString() // 20 days ago
+    due_date: '2025-05-02',
+    project_id: 1,
+    assignee_id: 1,
+    created_at: '2025-03-07T11:00:00Z',
+    updated_at: '2025-04-12T09:15:00Z'
   },
   {
     id: 3,
-    projectId: 1,
-    title: 'Optimize Website Performance',
-    description: 'Improve load times and optimize assets',
-    status: 'todo',
-    assigneeId: 3,
-    priority: 'medium',
-    dueDate: new Date(Date.now() + 10 * 24 * 3600000).toISOString(), // 10 days from now
-    createdAt: new Date(Date.now() - 15 * 24 * 3600000).toISOString() // 15 days ago
+    title: 'API Integration',
+    description: 'Connect app to backend API services',
+    status: 'pending',
+    priority: 'high',
+    due_date: '2025-06-10',
+    project_id: 2,
+    assignee_id: 1,
+    created_at: '2025-03-20T14:00:00Z',
+    updated_at: '2025-04-15T16:45:00Z'
   },
   {
     id: 4,
-    projectId: 2,
-    title: 'Design User Authentication Flow',
-    description: 'Create login, registration, and password recovery screens',
+    title: 'Social Media Content',
+    description: 'Prepare content for social media campaign',
     status: 'completed',
-    assigneeId: 2,
-    priority: 'high',
-    dueDate: new Date(Date.now() - 15 * 24 * 3600000).toISOString(), // 15 days ago
-    createdAt: new Date(Date.now() - 40 * 24 * 3600000).toISOString(), // 40 days ago
-    completedAt: new Date(Date.now() - 14 * 24 * 3600000).toISOString() // 14 days ago
+    priority: 'medium',
+    due_date: '2025-03-25',
+    completed_at: '2025-03-23T12:30:00Z',
+    project_id: 3,
+    assignee_id: 4,
+    created_at: '2025-02-15T09:30:00Z',
+    updated_at: '2025-03-23T12:30:00Z'
   },
   {
     id: 5,
-    projectId: 2,
-    title: 'Implement Push Notifications',
-    description: 'Integrate Firebase Cloud Messaging for cross-platform notifications',
-    status: 'in-progress',
-    assigneeId: 4,
-    priority: 'medium',
-    dueDate: new Date(Date.now() + 20 * 24 * 3600000).toISOString(), // 20 days from now
-    createdAt: new Date(Date.now() - 30 * 24 * 3600000).toISOString() // 30 days ago
+    title: 'Performance Testing',
+    description: 'Conduct load and stress testing on the application',
+    status: 'pending',
+    priority: 'low',
+    due_date: '2025-06-28',
+    project_id: 2,
+    assignee_id: 3,
+    created_at: '2025-03-25T15:45:00Z',
+    updated_at: '2025-04-16T10:20:00Z'
+  }
+];
+
+// Mock Attachments
+export const attachments: Attachment[] = [
+  {
+    id: 1,
+    name: 'homepage-design.png',
+    url: '/assets/attachments/homepage-design.png',
+    type: 'image/png',
+    size: 2500000,
+    message_id: 2,
+    created_at: '2025-04-15T10:30:00Z'
   }
 ];
 
@@ -140,82 +169,23 @@ export const tasks: Task[] = [
 export const messages: Message[] = [
   {
     id: 1,
-    senderId: 2,
-    content: 'Hi team, I\'ve completed the homepage design. Take a look when you get a chance!',
-    timestamp: new Date(Date.now() - 3 * 3600000).toISOString(), // 3 hours ago
-    read: true,
-    attachments: [
-      {
-        id: 1,
-        name: 'homepage-mockup.png',
-        url: '#',
-        type: 'image/png',
-        size: 2400000,
-        uploadedAt: new Date(Date.now() - 3 * 3600000).toISOString()
-      }
-    ]
+    content: 'Hey team, I just pushed the latest changes to the repository!',
+    sender_id: 1,
+    room_id: 'project:1',
+    created_at: '2025-04-19T09:30:00Z'
   },
   {
     id: 2,
-    senderId: 1,
-    content: 'Looks great, Jane! I\'ll start implementing it tomorrow.',
-    timestamp: new Date(Date.now() - 2.5 * 3600000).toISOString(), // 2.5 hours ago
-    read: true
+    content: 'Great! I'll review your code this afternoon.',
+    sender_id: 3,
+    room_id: 'project:1',
+    created_at: '2025-04-19T09:45:00Z'
   },
   {
     id: 3,
-    senderId: 3,
-    content: 'I need some help with the database queries. Anyone available for a quick call?',
-    timestamp: new Date(Date.now() - 1 * 3600000).toISOString(), // 1 hour ago
-    read: false
-  },
-  {
-    id: 4,
-    senderId: 4,
-    content: 'Just pushed the latest changes to the repository. Please review when you can.',
-    timestamp: new Date(Date.now() - 45 * 60000).toISOString(), // 45 minutes ago
-    read: false
+    content: 'Can someone help me with the authentication module?',
+    sender_id: 2,
+    room_id: 'project:1',
+    created_at: '2025-04-19T10:15:00Z'
   }
 ];
-
-// Mock Notifications
-export const notifications: Notification[] = [
-  {
-    id: 1,
-    userId: 1,
-    type: 'task',
-    content: 'You\'ve been assigned to "Implement Frontend Components"',
-    read: true,
-    timestamp: new Date(Date.now() - 20 * 24 * 3600000).toISOString(), // 20 days ago
-    actionLink: '/tasks/2'
-  },
-  {
-    id: 2,
-    userId: 1,
-    type: 'message',
-    content: 'Jane Smith mentioned you in a message',
-    read: true,
-    timestamp: new Date(Date.now() - 3 * 3600000).toISOString(), // 3 hours ago
-    actionLink: '/messages'
-  },
-  {
-    id: 3,
-    userId: 1,
-    type: 'project',
-    content: 'Website Redesign project is 75% complete',
-    read: false,
-    timestamp: new Date(Date.now() - 1 * 24 * 3600000).toISOString(), // 1 day ago
-    actionLink: '/projects/1'
-  },
-  {
-    id: 4,
-    userId: 1,
-    type: 'system',
-    content: 'System maintenance scheduled for tonight 10PM-2AM',
-    read: false,
-    timestamp: new Date(Date.now() - 2 * 3600000).toISOString(), // 2 hours ago
-  }
-];
-
-// Current User (simulating logged in user)
-export const currentUser = users[0];

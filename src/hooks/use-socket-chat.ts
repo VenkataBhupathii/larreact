@@ -1,8 +1,9 @@
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect, useCallback } from 'react';
 import { Message } from '@/types';
 import socketService from '@/services/socket';
-import { currentUser } from '@/data/mockData';
 
 export function useSocketChat(roomId: string) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -12,8 +13,8 @@ export function useSocketChat(roomId: string) {
 
   // Connect to socket when component mounts
   useEffect(() => {
-    // In a real app, you'd get the token from authentication
-    const token = 'mock-auth-token'; 
+    // In a real app, you'd get the token from localStorage
+    const token = localStorage.getItem('auth_token') || 'mock-auth-token'; 
     
     try {
       // Initialize socket connection
@@ -67,31 +68,34 @@ export function useSocketChat(roomId: string) {
   }, [roomId]);
 
   // Send a message
-  const sendMessage = useCallback((content: string) => {
+  const sendMessage = useCallback((content: string, attachments?: File[]) => {
     if (!socketService.isConnected()) {
       setError('Not connected to server');
-      return false;
+      return Promise.reject(new Error('Not connected to server'));
     }
     
     try {
       // Construct the message object
       const message: Message = {
         id: Date.now(), // Temporary ID that will be replaced by server
-        senderId: currentUser.id,
+        sender_id: Number(localStorage.getItem('user_id')) || 1,
+        room_id: roomId,
         content,
-        timestamp: new Date().toISOString(),
-        read: false
+        created_at: new Date().toISOString()
       };
       
       // Send via socket
-      socketService.sendMessage(roomId, message);
-      
-      // Optimistically add to local state
-      setMessages(prev => [...prev, message]);
-      return true;
+      return new Promise<boolean>((resolve) => {
+        socketService.sendMessage(roomId, message);
+        
+        // Optimistically add to local state
+        setMessages(prev => [...prev, message]);
+        resolve(true);
+      });
     } catch (err) {
-      setError(`Failed to send message: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      return false;
+      const errorMessage = `Failed to send message: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      setError(errorMessage);
+      return Promise.reject(new Error(errorMessage));
     }
   }, [roomId]);
 

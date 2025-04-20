@@ -5,11 +5,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
+import { useNavigate } from 'react-router-dom';
 
 export function AuthDialog() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const { login, register: registerUser } = useAuth();
+  const navigate = useNavigate();
   
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -19,14 +21,23 @@ export function AuthDialog() {
     }
   });
 
-  const onSubmit = handleSubmit((data) => {
-    if (isLogin) {
-      login({ email: data.email, password: data.password });
-    } else {
-      registerUser(data);
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      if (isLogin) {
+        await login({ email: data.email, password: data.password });
+      } else {
+        await registerUser({
+          name: data.name,
+          email: data.email,
+          password: data.password
+        });
+      }
+      setIsOpen(false);
+      reset();
+      navigate('/projects');
+    } catch (error) {
+      console.error('Authentication error:', error);
     }
-    setIsOpen(false);
-    reset();
   });
 
   return (

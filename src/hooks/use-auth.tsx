@@ -5,12 +5,28 @@ import { authService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { User } from '@/types';
 
+interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: { email: string; password: string }) => Promise<void>;
-  register: (userData: { name: string; email: string; password: string }) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -47,12 +63,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [isUserLoading]);
 
   const loginMutation = useMutation({
-    mutationFn: async (credentials: { email: string; password: string }) => {
+    mutationFn: async (credentials: LoginCredentials) => {
       const response = await authService.login(credentials.email, credentials.password);
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: AuthResponse) => {
       localStorage.setItem('auth_token', data.token);
+      if (data.user && data.user.id) {
+        localStorage.setItem('user_id', String(data.user.id));
+      }
       queryClient.setQueryData(['auth-user'], data.user);
       toast({
         title: "Success",
@@ -70,12 +89,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   });
 
   const registerMutation = useMutation({
-    mutationFn: async (userData: { name: string; email: string; password: string }) => {
+    mutationFn: async (userData: RegisterData) => {
       const response = await authService.register(userData.name, userData.email, userData.password);
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: AuthResponse) => {
       localStorage.setItem('auth_token', data.token);
+      if (data.user && data.user.id) {
+        localStorage.setItem('user_id', String(data.user.id));
+      }
       queryClient.setQueryData(['auth-user'], data.user);
       toast({
         title: "Success",
@@ -96,6 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       await authService.logout();
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_id');
       queryClient.setQueryData(['auth-user'], null);
       queryClient.invalidateQueries({ queryKey: ['auth-user'] });
       toast({
@@ -112,12 +135,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const value = {
-    user,
+  const login = async (credentials: LoginCredentials): Promise<void> => {
+    await loginMutation.mutateAsync(credentials);
+  };
+
+  const register = async (userData: RegisterData): Promise<void> => {
+    await registerMutation.mutateAsync(userData);
+  };
+
+  const value: AuthContextType = {
+    user: user || null,
     isAuthenticated: !!user,
     isLoading,
-    login: loginMutation.mutateAsync,
-    register: registerMutation.mutateAsync,
+    login,
+    register,
     logout
   };
 

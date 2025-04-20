@@ -16,15 +16,19 @@ const Index = () => {
   const upcomingTasks = tasks
     .filter(task => task.status !== 'completed')
     .sort((a, b) => {
-      if (!a.dueDate) return 1;
-      if (!b.dueDate) return -1;
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
     })
     .slice(0, 5);
   
   // Get recent messages
   const recentMessages = [...messages]
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA;
+    })
     .slice(0, 3);
 
   const handleSendMessage = (content: string) => {

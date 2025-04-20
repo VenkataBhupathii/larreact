@@ -3,13 +3,13 @@ import { useState, useEffect, useRef } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ChatMessage } from '@/components/chat/ChatMessage';
 import { ChatInput } from '@/components/chat/ChatInput';
-import { useChat } from '@/hooks/use-chat';
+import { useSocketChat } from '@/hooks/use-socket-chat';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 
 const Chat = () => {
   const roomId = 'global'; // Default room ID for global chat
-  const { messages, isConnected, sendMessage } = useChat(roomId);
+  const { messages, isConnected, sendMessage } = useSocketChat(roomId);
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isSending, setIsSending] = useState(false);
@@ -23,7 +23,9 @@ const Chat = () => {
     
     setIsSending(true);
     try {
-      await sendMessage(content, attachments);
+      await sendMessage(content);
+    } catch (error) {
+      console.error("Failed to send message:", error);
     } finally {
       setIsSending(false);
     }
