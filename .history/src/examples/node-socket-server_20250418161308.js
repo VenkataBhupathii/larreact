@@ -20,7 +20,7 @@ const server = http.createServer(app);
 // Initialize Socket.io server
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:8080', 'https://yourdomain.com'],
+    origin: ['http://localhost:8080/api', 'https://yourdomain.com'],
     methods: ['GET', 'POST'],
     credentials: true
   }

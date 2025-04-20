@@ -10,9 +10,9 @@ export default defineConfig({
   },
   build: {
     // Correct the outDir to properly resolve the path for Laravel's public directory
-    outDir: path.resolve(__dirname, "../syncsaga-api/public/build"),  // Output built files to Laravel's public/build directory
+    outDir: '../syncsaga-api/public/build',  // Output built files to Laravel's public/build directory
     emptyOutDir: true,  // Clears out the build folder before building
-    manifest: "manifest.json" ,
+    manifest: true ,
   },
   plugins: [
     react(),

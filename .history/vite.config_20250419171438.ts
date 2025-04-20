@@ -9,10 +9,7 @@ export default defineConfig({
     port: 8081,  // React Vite server runs on a different port to avoid conflicts with Laravel (running on 8000)
   },
   build: {
-    // Correct the outDir to properly resolve the path for Laravel's public directory
-    outDir: path.resolve(__dirname, "../syncsaga-api/public/build"),  // Output built files to Laravel's public/build directory
-    emptyOutDir: true,  // Clears out the build folder before building
-    manifest: "manifest.json" ,
+    outDir: path.resolve(__dirname, "../your-laravel-project/public/build"),  // Output built files to Laravel's public directory
   },
   plugins: [
     react(),

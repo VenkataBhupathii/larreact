@@ -1,15 +1,20 @@
+
 import axios from 'axios';
 
-// Connect to Laravel API
-const API_URL = 'http://localhost:8000/api';
+// This would be the connection to your Laravel API
+// Replace with your actual Laravel backend URL
+// const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://localhost:8000/';
+const 
 
+// Create axios instance with defaults
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: true, // This enables sending cookies with requests
 });
 
 // Add authentication interceptor
@@ -21,16 +26,7 @@ api.interceptors.request.use(config => {
   return config;
 });
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-  response => response,
-  error => {
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
-  }
-);
-
-// Auth services for Laravel endpoints
+// API Services for Laravel Backend
 export const authService = {
   login: (email: string, password: string) => 
     api.post('/auth/login', { email, password }),
@@ -43,7 +39,6 @@ export const authService = {
   getUser: () => api.get('/auth/user'),
 };
 
-// Project services
 export const projectService = {
   getAll: () => api.get('/projects'),
   
@@ -64,7 +59,6 @@ export const projectService = {
     api.delete(`/projects/${projectId}/members/${userId}`),
 };
 
-// Task services
 export const taskService = {
   getAll: (filters = {}) => api.get('/tasks', { params: filters }),
   
@@ -92,26 +86,17 @@ export const taskService = {
   delete: (id: number) => api.delete(`/tasks/${id}`),
 };
 
-// Message services
-export const messageService = {
-  getAll: () => api.get('/messages'),
+export const userService = {
+  getAll: () => api.get('/users'),
   
-  send: (content: string, attachments?: File[]) => {
-    const formData = new FormData();
-    formData.append('content', content);
-    
-    if (attachments) {
-      attachments.forEach(file => {
-        formData.append('attachments[]', file);
-      });
-    }
-    
-    return api.post('/messages', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  },
+  getById: (id: number) => api.get(`/users/${id}`),
+  
+  update: (id: number, data: {
+    name?: string;
+    email?: string;
+    role?: string;
+    status?: string;
+  }) => api.put(`/users/${id}`, data),
 };
 
 export default api;
