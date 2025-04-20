@@ -1,72 +1,134 @@
 
-import { Project, User } from '@/types';
-import { Calendar, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { MoreHorizontal, Edit, Trash, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
-import { users } from '@/data/mockData';
+import { useProjects } from '@/hooks/use-projects';
+import { useToast } from '@/hooks/use-toast';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import { Project } from '@/types';
 
 interface ProjectCardProps {
   project: Project;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const teamMembers: User[] = users.filter(user => project.members.includes(user.id));
-  const formattedDate = project.dueDate 
-    ? format(new Date(project.dueDate), 'MMM dd, yyyy')
-    : 'No due date';
-
+  const { deleteProject } = useProjects();
+  const { toast } = useToast();
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-500';
+      case 'completed': return 'bg-blue-500';
+      case 'archived': return 'bg-gray-500';
+      default: return 'bg-yellow-500';
+    }
+  };
+  
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      deleteProject(project.id);
+    }
+  };
+  
+  const handleEdit = () => {
+    toast({
+      title: "Feature coming soon",
+      description: "Project editing will be available in a future update.",
+    });
+  };
+  
   return (
-    <div className="syncsaga-card">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">{project.name}</h3>
-          <p className="text-sm text-muted-foreground mt-1">{project.description}</p>
+    <Card className="overflow-hidden transition-all hover:shadow-md">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-xl">{project.name}</CardTitle>
+            <CardDescription className="line-clamp-1">
+              {project.description || 'No description provided'}
+            </CardDescription>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleEdit}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <div className="flex items-center">
-          <span
-            className={`px-2 py-1 text-xs font-medium rounded-full ${
-              project.status === 'active'
-                ? 'bg-green-100 text-green-800'
-                : project.status === 'completed'
-                ? 'bg-blue-100 text-blue-800'
-                : 'bg-gray-100 text-gray-800'
-            }`}
+      </CardHeader>
+      <CardContent className="pb-2">
+        <div className="flex justify-between items-center mt-2 mb-1">
+          <div className="flex items-center">
+            <span className="text-sm font-medium">Progress:</span>
+            <span className="ml-1 text-sm">{project.progress || 0}%</span>
+          </div>
+          <Badge 
+            variant="secondary"
+            className={`${getStatusColor(project.status || 'active')} text-white`}
           >
-            {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
-          </span>
+            {project.status ? project.status.charAt(0).toUpperCase() + project.status.slice(1) : 'Active'}
+          </Badge>
         </div>
-      </div>
-
-      <div className="w-full bg-secondary rounded-full h-2.5">
-        <div
-          className="bg-primary h-2.5 rounded-full"
-          style={{ width: `${project.progress}%` }}
-        ></div>
-      </div>
-      <p className="text-sm text-right mt-1">{project.progress}% complete</p>
-
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Due: {formattedDate}</span>
-        </div>
-
-        <div className="flex -space-x-2">
-          {teamMembers.slice(0, 3).map((member) => (
-            <img
-              key={member.id}
-              className="w-7 h-7 rounded-full border-2 border-background"
-              src={member.avatar}
-              alt={member.name}
-              title={member.name}
-            />
-          ))}
-          {teamMembers.length > 3 && (
-            <div className="w-7 h-7 rounded-full bg-secondary border-2 border-background flex items-center justify-center">
-              <span className="text-xs font-medium">+{teamMembers.length - 3}</span>
+        <Progress value={project.progress || 0} className="h-2" />
+        
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Tasks</span>
+            <span className="text-sm font-medium">{project.tasks?.length || 0}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm text-muted-foreground">Team Members</span>
+            <span className="text-sm font-medium">{project.members?.length || 0}</span>
+          </div>
+          {project.due_date && (
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Due Date</span>
+              <span className="text-sm font-medium">
+                {format(new Date(project.due_date), 'MMM d, yyyy')}
+              </span>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+      <CardFooter className="pt-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full"
+          onClick={() => setIsTaskFormOpen(true)}
+        >
+          <Plus className="mr-2 h-3.5 w-3.5" />
+          Add Task
+        </Button>
+      </CardFooter>
+      
+      <TaskForm 
+        projectId={project.id} 
+        open={isTaskFormOpen} 
+        onOpenChange={setIsTaskFormOpen} 
+      />
+    </Card>
   );
 }

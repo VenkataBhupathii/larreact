@@ -1,63 +1,93 @@
 
-import { Message, User } from '@/types';
 import { format } from 'date-fns';
-import { Paperclip } from 'lucide-react';
-import { users, currentUser } from '@/data/mockData';
+import { Download, FileText, Image } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Message } from '@/types';
 
 interface ChatMessageProps {
   message: Message;
+  isOwn?: boolean;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
-  const sender = users.find(user => user.id === message.senderId) as User;
-  const isCurrentUser = message.senderId === currentUser.id;
-  const formattedTime = format(new Date(message.timestamp), 'h:mm a');
-  const hasAttachments = message.attachments && message.attachments.length > 0;
+export function ChatMessage({ message, isOwn = false }: ChatMessageProps) {
+  const messageDate = message.created_at ? new Date(message.created_at) : new Date();
+  const formattedTime = format(messageDate, 'h:mm a');
   
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <Image className="h-4 w-4" />;
+    return <FileText className="h-4 w-4" />;
+  };
+
   return (
-    <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`flex max-w-[80%] ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
-        <div className="flex-shrink-0">
-          <img
-            src={sender.avatar}
-            alt={sender.name}
-            className="w-8 h-8 rounded-full"
-          />
-        </div>
+    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+      <div className={`flex max-w-[80%] ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+        <Avatar className={`h-8 w-8 ${isOwn ? 'ml-2' : 'mr-2'}`}>
+          <AvatarImage src={message.sender?.avatar} />
+          <AvatarFallback>{message.sender ? getInitials(message.sender.name) : '?'}</AvatarFallback>
+        </Avatar>
         
-        <div className={`mx-3 ${isCurrentUser ? 'items-end' : 'items-start'}`}>
-          <div className="flex flex-col">
-            <div className={`flex items-center ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-1`}>
-              <span className="text-sm font-medium">{sender.name}</span>
-              <span className="text-xs text-muted-foreground ml-2">{formattedTime}</span>
-            </div>
+        <div>
+          <div className={`flex items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
+            <span className="text-sm font-medium">{message.sender?.name || 'Unknown User'}</span>
+            <span className="text-xs text-muted-foreground ml-2">{formattedTime}</span>
+          </div>
+          
+          <div 
+            className={`mt-1 p-3 rounded-lg ${
+              isOwn 
+                ? 'bg-primary text-primary-foreground rounded-tr-none' 
+                : 'bg-muted rounded-tl-none'
+            }`}
+          >
+            <p className="whitespace-pre-wrap break-words">{message.content}</p>
             
-            <div className={`rounded-lg px-4 py-2 ${
-              isCurrentUser 
-                ? 'bg-primary text-primary-foreground animate-in-right' 
-                : 'bg-secondary text-secondary-foreground animate-in-left'
-            }`}>
-              <p className="whitespace-pre-wrap">{message.content}</p>
-              
-              {hasAttachments && (
-                <div className="mt-2 flex flex-col gap-2">
-                  {message.attachments?.map(attachment => (
-                    <div 
-                      key={attachment.id}
-                      className={`flex items-center gap-2 rounded px-3 py-2 text-sm ${
-                        isCurrentUser ? 'bg-primary/90' : 'bg-secondary/80'
-                      }`}
-                    >
-                      <Paperclip className="h-4 w-4" />
-                      <span className="truncate">{attachment.name}</span>
-                      <span className="text-xs opacity-70">
-                        {(attachment.size / 1000000).toFixed(1)} MB
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {message.attachments && message.attachments.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {message.attachments.map((attachment) => (
+                  <div key={attachment.id} className="flex items-center gap-2">
+                    {attachment.type.startsWith('image/') ? (
+                      <a 
+                        href={attachment.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block max-w-full"
+                      >
+                        <img 
+                          src={attachment.url} 
+                          alt={attachment.name} 
+                          className="max-h-[200px] rounded object-cover"
+                        />
+                      </a>
+                    ) : (
+                      <div className={`flex items-center p-2 rounded ${isOwn ? 'bg-primary-foreground/10' : 'bg-background'}`}>
+                        {getFileIcon(attachment.type)}
+                        <span className="ml-2 text-sm max-w-[200px] truncate">{attachment.name}</span>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 ml-2"
+                          asChild
+                        >
+                          <a href={attachment.url} download={attachment.name}>
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

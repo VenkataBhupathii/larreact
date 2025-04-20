@@ -2,48 +2,22 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { ProjectCard } from '@/components/dashboard/ProjectCard';
-import { Plus, Filter } from 'lucide-react';
+import { ProjectForm } from '@/components/projects/ProjectForm';
+import { Plus, Filter, Loader2 } from 'lucide-react';
 import { useProjects } from '@/hooks/use-projects';
-import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { useForm } from 'react-hook-form';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import { useAuth } from '@/hooks/use-auth';
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed' | 'archived'>('all');
-  const { projects, isLoading, createProject } = useProjects();
+  const { projects, isLoading } = useProjects();
   const { isAuthenticated } = useAuth();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   
-  const { register, handleSubmit, reset } = useForm({
-    defaultValues: {
-      name: '',
-      description: ''
-    }
-  });
-
   const filteredProjects = statusFilter === 'all' 
     ? projects 
     : projects.filter(project => project.status === statusFilter);
-
-  const onSubmit = handleSubmit((data) => {
-    createProject(data);
-    setIsDialogOpen(false);
-    reset();
-  });
-
-  if (!isAuthenticated) {
-    return (
-      <MainLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <h2 className="text-2xl font-semibold mb-4">Please Login</h2>
-          <p className="text-muted-foreground">You need to be logged in to view and manage projects</p>
-        </div>
-      </MainLayout>
-    );
-  }
 
   return (
     <MainLayout>
@@ -53,35 +27,17 @@ const Projects = () => {
           <p className="text-muted-foreground">Manage and track all your team's projects</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              New Project
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Project</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">Project Name</label>
-                <Input id="name" {...register('name', { required: true })} />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="description" className="text-sm font-medium">Description</label>
-                <Textarea id="description" {...register('description')} />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">Create Project</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsTaskFormOpen(true)} 
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            New Task
+          </Button>
+          <ProjectForm />
+        </div>
       </div>
       
       {/* Filters */}
@@ -129,10 +85,8 @@ const Projects = () => {
       
       {/* Projects Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-[200px] rounded-lg animate-pulse bg-secondary" />
-          ))}
+        <div className="flex justify-center items-center p-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
       ) : filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -144,11 +98,14 @@ const Projects = () => {
         <div className="border border-dashed rounded-lg p-10 text-center">
           <h3 className="text-lg font-medium mb-2">No projects found</h3>
           <p className="text-muted-foreground mb-4">There are no {statusFilter !== 'all' ? statusFilter : ''} projects available.</p>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            Create New Project
-          </Button>
+          <ProjectForm />
         </div>
       )}
+      
+      <TaskForm 
+        open={isTaskFormOpen} 
+        onOpenChange={setIsTaskFormOpen} 
+      />
     </MainLayout>
   );
 };

@@ -1,47 +1,55 @@
 
-// Type definitions for our application
-
 export interface User {
   id: number;
   name: string;
   email: string;
+  role?: string;
+  status?: string;
   avatar?: string;
-  role: 'admin' | 'member';
-  status: 'online' | 'offline' | 'away';
-  lastActive?: string;
-}
-
-export interface Message {
-  id: number;
-  senderId: number;
-  content: string;
-  timestamp: string;
-  read: boolean;
-  attachments?: Attachment[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Project {
   id: number;
   name: string;
-  description: string;
-  status: 'active' | 'completed' | 'archived';
-  progress: number;
-  createdAt: string;
-  dueDate?: string;
-  members: number[];
+  description?: string;
+  status?: string;
+  progress?: number;
+  due_date?: string;
+  user_id?: number;
+  user?: User;
+  members?: User[];
+  tasks?: Task[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Task {
   id: number;
-  projectId: number;
   title: string;
   description?: string;
-  status: 'todo' | 'in-progress' | 'review' | 'completed';
-  assigneeId?: number;
-  priority: 'low' | 'medium' | 'high';
-  dueDate?: string;
-  createdAt: string;
-  completedAt?: string;
+  status?: string;
+  priority?: string;
+  due_date?: string;
+  completed_at?: string;
+  project_id: number;
+  assignee_id?: number;
+  project?: Project;
+  assignee?: User;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Message {
+  id: number;
+  content: string;
+  sender_id: number;
+  room_id: string;
+  sender?: User;
+  attachments?: Attachment[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Attachment {
@@ -50,15 +58,7 @@ export interface Attachment {
   url: string;
   type: string;
   size: number;
-  uploadedAt: string;
-}
-
-export interface Notification {
-  id: number;
-  userId: number;
-  type: 'message' | 'task' | 'project' | 'system';
-  content: string;
-  read: boolean;
-  timestamp: string;
-  actionLink?: string;
+  message_id: number;
+  created_at?: string;
+  updated_at?: string;
 }
