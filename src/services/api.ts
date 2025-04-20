@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import type { AuthResponse, ApiResponse, MessagesResponse, ProjectsResponse, TasksResponse } from '@/types/api';
+import type { User, Message, Project, Task } from '@/types';
 
 // Connect to Laravel API
 const api = axios.create({
