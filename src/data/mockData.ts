@@ -1,191 +1,238 @@
 
-import { User, Project, Task, Message, Attachment } from '@/types';
+// Mock data for the application
+// This will be replaced with API calls in a production environment
 
-// Mock Users
-export const users: User[] = [
+// Users
+export const users = [
   {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: 'Developer',
-    status: 'active',
-    avatar: '/assets/avatars/avatar-1.png',
-    created_at: '2025-01-15T10:00:00Z',
-    updated_at: '2025-04-01T14:30:00Z'
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
+    role: 'admin'
   },
   {
     id: 2,
-    name: 'Sarah Smith',
-    email: 'sarah@example.com',
-    role: 'Designer',
-    status: 'active',
-    avatar: '/assets/avatars/avatar-2.png',
-    created_at: '2025-01-20T11:00:00Z',
-    updated_at: '2025-04-02T09:15:00Z'
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane',
+    role: 'developer'
   },
   {
     id: 3,
-    name: 'Michael Johnson',
-    email: 'michael@example.com',
-    role: 'Project Manager',
-    status: 'active',
-    avatar: '/assets/avatars/avatar-3.png',
-    created_at: '2025-01-10T14:00:00Z',
-    updated_at: '2025-04-03T16:45:00Z'
+    name: 'Mike Johnson',
+    email: 'mike@example.com',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
+    role: 'designer'
   },
   {
     id: 4,
-    name: 'Emily Davis',
-    email: 'emily@example.com',
-    role: 'Marketing',
-    status: 'active',
-    avatar: '/assets/avatars/avatar-4.png',
-    created_at: '2025-02-05T09:30:00Z',
-    updated_at: '2025-04-04T11:20:00Z'
+    name: 'Sarah Williams',
+    email: 'sarah@example.com',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+    role: 'manager'
   }
 ];
 
+// Current logged in user
 export const currentUser = users[0];
 
-// Mock Projects
-export const projects: Project[] = [
+// Projects
+export const projects = [
   {
     id: 1,
     name: 'Website Redesign',
-    description: 'Complete overhaul of the company website',
+    description: 'Redesign the company website with new branding',
     status: 'active',
-    progress: 65,
+    progress: 75,
     due_date: '2025-05-15',
+    created_at: '2025-01-15',
     user_id: 1,
-    members: [users[0], users[1], users[2]],
-    created_at: '2025-03-01T10:00:00Z',
-    updated_at: '2025-04-10T14:30:00Z'
+    members: [1, 2, 3]
   },
   {
     id: 2,
     name: 'Mobile App Development',
-    description: 'Building a cross-platform mobile application',
+    description: 'Develop a new mobile app for both iOS and Android',
     status: 'active',
     progress: 30,
     due_date: '2025-07-20',
-    user_id: 3,
-    members: [users[2], users[3], users[0]],
-    created_at: '2025-03-15T11:00:00Z',
-    updated_at: '2025-04-12T09:15:00Z'
+    created_at: '2025-02-10',
+    user_id: 1,
+    members: [1, 3, 4]
   },
   {
     id: 3,
-    name: 'Marketing Campaign',
-    description: 'Q2 digital marketing campaign',
-    status: 'completed',
-    progress: 100,
-    due_date: '2025-04-01',
-    user_id: 4,
-    members: [users[3], users[1]],
-    created_at: '2025-02-10T14:00:00Z',
-    updated_at: '2025-04-01T16:45:00Z'
-  }
-];
-
-// Mock Tasks
-export const tasks: Task[] = [
-  {
-    id: 1,
-    title: 'Design Homepage',
-    description: 'Create wireframes and mockups for the homepage',
-    status: 'in_progress',
-    priority: 'high',
-    due_date: '2025-04-25',
-    project_id: 1,
-    assignee_id: 2,
-    created_at: '2025-03-05T10:00:00Z',
-    updated_at: '2025-04-10T14:30:00Z'
-  },
-  {
-    id: 2,
-    title: 'Implement Authentication',
-    description: 'Set up user authentication and authorization',
-    status: 'pending',
-    priority: 'medium',
-    due_date: '2025-05-02',
-    project_id: 1,
-    assignee_id: 1,
-    created_at: '2025-03-07T11:00:00Z',
-    updated_at: '2025-04-12T09:15:00Z'
-  },
-  {
-    id: 3,
-    title: 'API Integration',
-    description: 'Connect app to backend API services',
-    status: 'pending',
-    priority: 'high',
+    name: 'Product Launch Campaign',
+    description: 'Plan and execute the marketing campaign for the new product launch',
+    status: 'on_hold',
+    progress: 15,
     due_date: '2025-06-10',
-    project_id: 2,
-    assignee_id: 1,
-    created_at: '2025-03-20T14:00:00Z',
-    updated_at: '2025-04-15T16:45:00Z'
+    created_at: '2025-03-05',
+    user_id: 4,
+    members: [2, 4]
   },
   {
     id: 4,
-    title: 'Social Media Content',
-    description: 'Prepare content for social media campaign',
+    name: 'UI Component Library',
+    description: 'Create a reusable UI component library for future projects',
     status: 'completed',
-    priority: 'medium',
-    due_date: '2025-03-25',
-    completed_at: '2025-03-23T12:30:00Z',
-    project_id: 3,
-    assignee_id: 4,
-    created_at: '2025-02-15T09:30:00Z',
-    updated_at: '2025-03-23T12:30:00Z'
-  },
+    progress: 100,
+    due_date: '2025-04-01',
+    created_at: '2025-01-20',
+    user_id: 3,
+    members: [1, 2, 3]
+  }
+];
+
+// Tasks
+export const tasks = [
   {
-    id: 5,
-    title: 'Performance Testing',
-    description: 'Conduct load and stress testing on the application',
-    status: 'pending',
-    priority: 'low',
-    due_date: '2025-06-28',
-    project_id: 2,
+    id: 1,
+    project_id: 1,
+    title: 'Design Homepage Mockup',
+    description: 'Create a mockup for the new homepage design',
+    status: 'completed',
+    priority: 'high',
     assignee_id: 3,
-    created_at: '2025-03-25T15:45:00Z',
-    updated_at: '2025-04-16T10:20:00Z'
-  }
-];
-
-// Mock Attachments
-export const attachments: Attachment[] = [
-  {
-    id: 1,
-    name: 'homepage-design.png',
-    url: '/assets/attachments/homepage-design.png',
-    type: 'image/png',
-    size: 2500000,
-    message_id: 2,
-    created_at: '2025-04-15T10:30:00Z'
-  }
-];
-
-// Mock Messages
-export const messages: Message[] = [
-  {
-    id: 1,
-    content: 'Hey team, I just pushed the latest changes to the repository!',
-    sender_id: 1,
-    room_id: 'project:1',
-    created_at: '2025-04-19T09:30:00Z'
+    due_date: '2025-04-28',
+    created_at: '2025-04-15'
   },
   {
     id: 2,
-    content: 'Great! I'll review your code this afternoon.',
-    sender_id: 3,
-    room_id: 'project:1',
-    created_at: '2025-04-19T09:45:00Z'
+    project_id: 1,
+    title: 'Implement Responsive Layout',
+    description: 'Ensure the website works well on all devices',
+    status: 'in_progress',
+    priority: 'normal',
+    assignee_id: 2,
+    due_date: '2025-05-05',
+    created_at: '2025-04-16'
   },
   {
     id: 3,
-    content: 'Can someone help me with the authentication module?',
-    sender_id: 2,
+    project_id: 1,
+    title: 'Content Migration',
+    description: 'Move content from old website to new one',
+    status: 'todo',
+    priority: 'normal',
+    assignee_id: 1,
+    due_date: '2025-05-10',
+    created_at: '2025-04-17'
+  },
+  {
+    id: 4,
+    project_id: 2,
+    title: 'API Design',
+    description: 'Design the API endpoints for the mobile app',
+    status: 'completed',
+    priority: 'high',
+    assignee_id: 2,
+    due_date: '2025-03-01',
+    created_at: '2025-02-15'
+  },
+  {
+    id: 5,
+    project_id: 2,
+    title: 'User Authentication',
+    description: 'Implement user login and registration',
+    status: 'in_progress',
+    priority: 'high',
+    assignee_id: 2,
+    due_date: '2025-03-15',
+    created_at: '2025-03-01'
+  },
+  {
+    id: 6,
+    project_id: 2,
+    title: 'UI Implementation',
+    description: 'Implement the UI screens based on the designs',
+    status: 'todo',
+    priority: 'normal',
+    assignee_id: 3,
+    due_date: '2025-04-01',
+    created_at: '2025-03-15'
+  },
+  {
+    id: 7,
+    project_id: 3,
+    title: 'Market Research',
+    description: 'Conduct market research to identify target audience',
+    status: 'completed',
+    priority: 'normal',
+    assignee_id: 4,
+    due_date: '2025-03-20',
+    created_at: '2025-03-10'
+  },
+  {
+    id: 8,
+    project_id: 3,
+    title: 'Social Media Strategy',
+    description: 'Develop a social media strategy for the launch',
+    status: 'todo',
+    priority: 'high',
+    assignee_id: 4,
+    due_date: '2025-04-15',
+    created_at: '2025-03-25'
+  }
+];
+
+// Messages
+export const messages = [
+  {
+    id: 1,
+    sender_id: 1,
+    content: 'Hey team, we need to finalize the homepage design today.',
     room_id: 'project:1',
-    created_at: '2025-04-19T10:15:00Z'
+    created_at: '2025-04-19T09:15:00Z'
+  },
+  {
+    id: 2,
+    sender_id: 3,
+    content: 'I\'ve uploaded the latest mockups to the shared folder.',
+    room_id: 'project:1',
+    created_at: '2025-04-19T09:18:00Z'
+  },
+  {
+    id: 3,
+    sender_id: 2,
+    content: 'Looks good! I\'ll start implementing it right away.',
+    room_id: 'project:1',
+    created_at: '2025-04-19T09:22:00Z'
+  },
+  {
+    id: 4,
+    sender_id: 1,
+    content: 'How\'s the API implementation coming along?',
+    room_id: 'project:2',
+    created_at: '2025-04-19T10:05:00Z'
+  },
+  {
+    id: 5,
+    sender_id: 2,
+    content: 'Almost done. Just finalizing the authentication endpoints.',
+    room_id: 'project:2',
+    created_at: '2025-04-19T10:10:00Z'
+  },
+  {
+    id: 6,
+    sender_id: 4,
+    content: 'We need to schedule a meeting to discuss the marketing strategy.',
+    room_id: 'project:3',
+    created_at: '2025-04-19T11:30:00Z'
+  },
+  {
+    id: 7,
+    sender_id: 1,
+    content: 'Can everyone update their task status by the end of the day?',
+    room_id: 'global',
+    created_at: '2025-04-19T14:00:00Z'
+  },
+  {
+    id: 8,
+    sender_id: 3,
+    content: 'I\'ll be working late tonight to finish the designs.',
+    room_id: 'global',
+    created_at: '2025-04-19T15:45:00Z'
   }
 ];

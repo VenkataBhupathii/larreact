@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { 
@@ -20,9 +21,13 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CalendarIcon } from 'lucide-react';
 import { useTasks } from '@/hooks/use-tasks';
 import { useProjects } from '@/hooks/use-projects';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface TaskFormProps {
   projectId?: number;
@@ -34,6 +39,7 @@ export function TaskForm({ projectId, open, onOpenChange }: TaskFormProps) {
   const { createTask } = useTasks();
   const { projects } = useProjects();
   const [isLoading, setIsLoading] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
   
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -41,15 +47,16 @@ export function TaskForm({ projectId, open, onOpenChange }: TaskFormProps) {
       description: '',
       status: 'todo',
       priority: 'normal',
-      projectId: projectId || '',
+      project_id: projectId || '',
+      assignee_id: '',
     }
   });
 
-  const watchedProjectId = watch('projectId');
+  const watchedProjectId = watch('project_id');
 
   useEffect(() => {
     if (projectId) {
-      setValue('projectId', projectId.toString());
+      setValue('project_id', projectId.toString());
     }
   }, [projectId, setValue]);
 
@@ -58,9 +65,12 @@ export function TaskForm({ projectId, open, onOpenChange }: TaskFormProps) {
     try {
       await createTask({
         ...data,
-        projectId: Number(data.projectId),
+        project_id: Number(data.project_id),
+        assignee_id: data.assignee_id ? Number(data.assignee_id) : undefined,
+        due_date: date ? format(date, 'yyyy-MM-dd') : undefined
       });
       reset();
+      setDate(undefined);
       onOpenChange(false);
     } finally {
       setIsLoading(false);
@@ -69,22 +79,23 @@ export function TaskForm({ projectId, open, onOpenChange }: TaskFormProps) {
 
   const handleClose = () => {
     reset();
+    setDate(undefined);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
           {!projectId && (
             <div className="space-y-2">
-              <label htmlFor="projectId" className="text-sm font-medium">Project</label>
+              <label htmlFor="project_id" className="text-sm font-medium">Project</label>
               <Select 
                 value={watchedProjectId.toString()} 
-                onValueChange={(value) => setValue('projectId', value)}
+                onValueChange={(value) => setValue('project_id', value)}
                 disabled={isLoading}
               >
                 <SelectTrigger className="w-full">
@@ -101,8 +112,8 @@ export function TaskForm({ projectId, open, onOpenChange }: TaskFormProps) {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {errors.projectId && (
-                <p className="text-sm text-destructive">{errors.projectId.message}</p>
+              {errors.project_id && (
+                <p className="text-sm text-destructive">{errors.project_id.message}</p>
               )}
             </div>
           )}
@@ -163,6 +174,34 @@ export function TaskForm({ projectId, open, onOpenChange }: TaskFormProps) {
               </Select>
             </div>
           </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="due_date" className="text-sm font-medium">Due Date</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                  disabled={isLoading}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
               Cancel

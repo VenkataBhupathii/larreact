@@ -4,17 +4,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Message } from '@/types';
 import socketService from '@/services/socket';
+import { useAuth } from '@/hooks/use-auth';
 
 export function useSocketChat(roomId: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [typingUsers, setTypingUsers] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   // Connect to socket when component mounts
   useEffect(() => {
-    // In a real app, you'd get the token from localStorage
-    const token = localStorage.getItem('auth_token') || 'mock-auth-token'; 
+    // Get token from localStorage
+    const token = localStorage.getItem('auth_token');
+    
+    if (!token) {
+      setError('Authentication token not found');
+      return () => {};
+    }
     
     try {
       // Initialize socket connection
@@ -78,11 +85,17 @@ export function useSocketChat(roomId: string) {
       // Construct the message object
       const message: Message = {
         id: Date.now(), // Temporary ID that will be replaced by server
-        sender_id: Number(localStorage.getItem('user_id')) || 1,
+        sender_id: user?.id || 0,
         room_id: roomId,
         content,
         created_at: new Date().toISOString()
       };
+      
+      // In a real implementation, we would upload attachments and add them to the message
+      // For now, we'll just log them
+      if (attachments && attachments.length > 0) {
+        console.log('Attachments to upload:', attachments);
+      }
       
       // Send via socket
       return new Promise<boolean>((resolve) => {
@@ -97,7 +110,7 @@ export function useSocketChat(roomId: string) {
       setError(errorMessage);
       return Promise.reject(new Error(errorMessage));
     }
-  }, [roomId]);
+  }, [roomId, user]);
 
   // Set typing status
   const setTyping = useCallback((isTyping: boolean) => {
