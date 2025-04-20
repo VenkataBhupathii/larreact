@@ -1,22 +1,25 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host: "::",  // Set this to make the development server accessible
-    port: 8081,  // React Vite server runs on a different port to avoid conflicts with Laravel (running on 8000)
+    port: 8080, // As requested in instructions
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/socket.io': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        ws: true,
+      }
+    }
   },
-  build: {
-    // Correct the outDir to properly resolve the path for Laravel's public directory
-    outDir: path.resolve(__dirname, "../syncsaga-api/public/build"),  // Output built files to Laravel's public/build directory
-    emptyOutDir: true,  // Clears out the build folder before building
-    manifest: "manifest.json" ,
-  },
-  plugins: [
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

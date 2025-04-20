@@ -1,8 +1,6 @@
+
 import { io, Socket } from 'socket.io-client';
 import { Message } from '@/types';
-
-// Connect to Node.js Socket.io server
-const SOCKET_URL = 'http://localhost:3001';
 
 class SocketService {
   private static instance: SocketService;
@@ -23,7 +21,7 @@ class SocketService {
       this.socket.disconnect();
     }
 
-    this.socket = io(SOCKET_URL, {
+    this.socket = io('/socket.io', {  // Using Vite's proxy
       auth: {
         token
       },
@@ -38,20 +36,20 @@ class SocketService {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('Socket connected to backend');
+      console.log('Connected to Socket.io server');
       this.connected = true;
     });
 
     this.socket.on('disconnect', () => {
-      console.log('Socket disconnected from backend');
+      console.log('Disconnected from Socket.io server');
       this.connected = false;
     });
 
-    this.socket.on('error', (error) => {
+    this.socket.on('error', (error: any) => {
       console.error('Socket error:', error);
     });
 
-    this.socket.on('user_status_change', (data) => {
+    this.socket.on('user_status_change', (data: any) => {
       console.log('User status changed:', data);
     });
   }
